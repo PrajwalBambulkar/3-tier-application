@@ -5,13 +5,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+# Only run build if you have a build script
+RUN if [ -f package.json ] && grep -q '"build"' package.json; then npm run build; fi
 
 # Stage 2: Run
 FROM node:16-alpine
-
 WORKDIR /app
 COPY --from=builder /app .
-ENV PORT=3000
 EXPOSE 3000
-CMD ["node", "presentation/server.js"]
+CMD ["npm", "start"]
