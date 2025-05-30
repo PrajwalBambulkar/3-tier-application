@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node presentation/server.js",
-    "build": "tsc && echo 'Build complete'", // Example if using TypeScript
+    "build": "tsc && echo 'Build complete'",
     "test": "jest"
   },
   "dependencies": {
