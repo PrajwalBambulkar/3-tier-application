@@ -1,30 +1,38 @@
+// server.js
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const productRoutes = require('./routes/productRoutes');
-const userRoutes = require('./routes/userRoutes');
-const { connectDB } = require('../data/database');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
 app.use(bodyParser.json());
 
-// Database connection
-connectDB();
+const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/mydb';
+
+// Connect to MongoDB
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Define a simple schema and model
+const ItemSchema = new mongoose.Schema({
+  name: String,
+});
+const Item = mongoose.model('Item', ItemSchema);
 
 // Routes
-app.use('/api/products', productRoutes);
-app.use('/api/users', userRoutes);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP' });
+app.get('/items', async (req, res) => {
+  const items = await Item.find();
+  res.json(items);
 });
 
-// Start server
+app.post('/items', async (req, res) => {
+  const newItem = new Item({ name: req.body.name });
+  await newItem.save();
+  res.status(201).json(newItem);
+});
+
 app.listen(PORT, () => {
-  console.log(`Presentation tier running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
-
-module.exports = app;
